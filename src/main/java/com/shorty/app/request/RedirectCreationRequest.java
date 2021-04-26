@@ -8,7 +8,8 @@ public class RedirectCreationRequest {
     @NotNull
     private String url;
 
-    public RedirectCreationRequest(){}
+    public RedirectCreationRequest() {
+    }
 
     public RedirectCreationRequest(String alias, String url) {
         this.alias = alias;
@@ -25,9 +26,6 @@ public class RedirectCreationRequest {
 
     @Override
     public String toString() {
-        return "RedirectCreationRequest{" +
-                "alias='" + alias + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        return "RedirectCreationRequest{" + "alias='" + alias + '\'' + ", url='" + url + '\'' + '}';
     }
 }

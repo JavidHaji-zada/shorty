@@ -1,7 +1,12 @@
 package com.shorty.app;
 
+import com.shorty.app.entity.Role;
+import com.shorty.app.repository.RoleRepository;
+import com.shorty.app.request.UserCreationRequest;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Application {

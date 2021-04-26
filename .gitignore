@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+shorty_mobile/lib/service/util/ServiceConstants.dart

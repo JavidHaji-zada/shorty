@@ -78,16 +78,16 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: MediaQuery.of(context).size.height * 0.15,
+                    height: MediaQuery.of(context).size.height * 0.3,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Container(
-                              margin: EdgeInsets.only(bottom: 15),
+                              margin: EdgeInsets.only(bottom: 10),
                               width: constraints.maxWidth * 0.75,
-                              height: constraints.maxHeight / 3,
+                              height: constraints.maxHeight / 5,
                               child: Material(
                                 elevation: 5.0,
                                 borderRadius: BorderRadius.circular(10.0),
@@ -95,7 +95,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                                 child: MaterialButton(
                                   padding: EdgeInsets.zero,
                                   minWidth: constraints.maxWidth * 0.75,
-                                  height: constraints.maxHeight / 3,
+                                  height: constraints.maxHeight / 5,
                                   onPressed: () {
                                     Navigator.pushNamed(context, ViewConstants.loginRoute);
                                   },
@@ -106,26 +106,44 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                                 ),
                               ),
                             ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, ViewConstants.registerRoute);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 20.0),
-                                child: SafeArea(
-                                  top: false,
-                                  bottom: true,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text("You don't have an account?",
-                                          style: TextStyle(
-                                              fontSize: 12, color: ViewConstants.myBlack, fontWeight: FontWeight.w400)),
-                                      Text("\t\tSign up here",
-                                          style: TextStyle(
-                                              fontSize: 12, color: ViewConstants.myBlack, fontWeight: FontWeight.w900)),
-                                    ],
-                                  ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              width: constraints.maxWidth * 0.75,
+                              height: constraints.maxHeight / 5,
+                              child: Material(
+                                elevation: 5.0,
+                                borderRadius: BorderRadius.circular(10.0),
+                                color: ViewConstants.myYellow,
+                                child: MaterialButton(
+                                  padding: EdgeInsets.zero,
+                                  minWidth: constraints.maxWidth * 0.75,
+                                  height: constraints.maxHeight / 5,
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, ViewConstants.anonymousRoute);
+                                  },
+                                  child: Text("Create Your Link",
+                                      textAlign: TextAlign.center,
+                                      style: ViewConstants.fieldStyle.copyWith(
+                                          fontSize: 18, color: ViewConstants.myWhite, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 30),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, ViewConstants.registerRoute);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("You don't have an account?",
+                                        style: TextStyle(
+                                            fontSize: 12, color: ViewConstants.myBlack, fontWeight: FontWeight.w400)),
+                                    Text("\t\tSign up here",
+                                        style: TextStyle(
+                                            fontSize: 12, color: ViewConstants.myBlack, fontWeight: FontWeight.w900)),
+                                  ],
                                 ),
                               ),
                             ),

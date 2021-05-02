@@ -1,5 +1,4 @@
 import 'package:shorty/src/models/User.dart';
-import 'package:shorty/src/models/Admin.dart';
 
 class UserModelController {
   static User createUserFromJSON(dynamic decodedBody) {
@@ -12,10 +11,10 @@ class UserModelController {
     }
   }
 
-  static Admin createAdminFromJSON(dynamic decodedBody) {
+  static User createUserFromJSONForToken(dynamic decodedBody) {
     try {
-      var admin = Admin.fromJson(decodedBody);
-      return admin;
+      var user = User.fromJsonForToken(decodedBody);
+      return user;
     } catch (e) {
       print(e);
       throw Exception("");

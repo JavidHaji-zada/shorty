@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:shorty/service/WebServerService.dart';
@@ -82,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
           behavior: SnackBarBehavior.floating,
           content: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Text(result),
+            child: Text("Login Failed. Please try again."),
           ));
       Scaffold.of(context).showSnackBar(snackBar);
     }
@@ -213,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                                   contentPadding: EdgeInsets.all(0),
                                   icon: Icon(Icons.person),
                                   border: UnderlineInputBorder(),
-                                  hintText: 'Username or E-mail',
+                                  hintText: 'Email',
                                   hintStyle: TextStyle(fontSize: 13),
                                 ),
                               ),

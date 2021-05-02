@@ -15,7 +15,6 @@ class InnerDrawerWithScreen extends StatefulWidget {
 
 class _InnerDrawerWithScreenState extends State<InnerDrawerWithScreen> {
   WebServerService _webServerService;
-  User _currentUser;
 
   @override
   void initState() {
@@ -25,7 +24,6 @@ class _InnerDrawerWithScreenState extends State<InnerDrawerWithScreen> {
 
   Future<bool> initializeService() async {
     _webServerService = await WebServerService.getWebServerService();
-    _currentUser = _webServerService.currentUser;
     return true;
   }
 
@@ -47,7 +45,7 @@ class _InnerDrawerWithScreenState extends State<InnerDrawerWithScreen> {
             begin: Alignment(-1, -1),
             end: Alignment(1, 1),
             colors: <Color>[
-              ViewConstants.myBlue.withOpacity(1),
+              ViewConstants.myYellow.withOpacity(1),
               ViewConstants.myBlack.withOpacity(1),
             ],
           ),
@@ -61,6 +59,43 @@ class _InnerDrawerWithScreenState extends State<InnerDrawerWithScreen> {
                 child: Container(
                   padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
                   color: Colors.transparent,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Spacer(),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 30),
+                          child: Center(
+                            child: Container(
+                              padding: EdgeInsets.only(top: 10, bottom: 10),
+                              width: MediaQuery.of(context).size.width / 3,
+                              child: Image.asset(
+                                "assets/SHORTY_white.png",
+                                fit: BoxFit.fitWidth,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: ListTile(
+                            title: Text("Log Out"),
+                            leading: Icon(Icons.arrow_back_ios),
+                            onTap: () {
+                              WebServerService.getWebServerService().then((value) {
+                                value.clearAllInfo();
+                                Navigator.pushNamedAndRemoveUntil(
+                                    context, ViewConstants.welcomeRoute, (Route<dynamic> route) => false);
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height / 15,
+                        )
+                      ],
+                    )
                 ))), // required if rightChild is not set
         //  A Scaffold is generally used but you are free to use other widgets
         // Note: use "automaticallyImplyLeading: false" if you do not personalize "leading" of Bar

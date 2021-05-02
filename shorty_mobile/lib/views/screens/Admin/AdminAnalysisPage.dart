@@ -4,17 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shorty/service/util/ServiceConstants.dart';
-import 'package:shorty/src/models/ShortLink.dart';
-import 'package:shorty/view_models/UserLinkListViewModel.dart';
+import 'package:shorty/view_models/AdminLinkListViewModel.dart';
 import 'package:shorty/views/util/ViewConstants.dart';
 
-class UserProfilePage extends StatefulWidget {
+class AdminAnalysisPage extends StatefulWidget {
   @override
-  _UserProfilePageState createState() => _UserProfilePageState();
+  _AdminAnalysisPageState createState() => _AdminAnalysisPageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> with TickerProviderStateMixin {
-  UserLinkListViewModel _userLinkListViewModel;
+class _AdminAnalysisPageState extends State<AdminAnalysisPage> {
+  AdminLinkListViewModel _adminLinkListViewModel;
 
   List<Color> _cardBackgroundColors;
 
@@ -27,7 +26,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
     // TODO: implement initState
     super.initState();
 
-    _userLinkListViewModel = UserLinkListViewModel();
+    _adminLinkListViewModel = AdminLinkListViewModel();
 
     _scrollController = ScrollController();
 
@@ -84,7 +83,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                           padding: EdgeInsets.only(
                             left: 20,
                           ),
-                          child: Text("Your Links",
+                          child: Text("User Links",
                               textAlign: TextAlign.left,
                               style: TextStyle(fontSize: 30, color: ViewConstants.myBlack, fontWeight: FontWeight.bold)),
                         ),
@@ -111,20 +110,20 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                 decoration: BoxDecoration(color: ViewConstants.myYellow.withOpacity(0.4)),
                 child: Center(
                   child: AutoSizeText(
-                    "From the list below, you can find the registered links for fast and efficient access to your URLs.",
-                    maxLines: 2,
-                    minFontSize: 8,
+                    "From the list below, you can find the registered links of all the users for fast and efficient access to the URLs.",
+                    maxLines: 4,
+                    minFontSize: 16,
                     maxFontSize: 20,
                     stepGranularity: 1,
-                    style: GoogleFonts.lato(fontSize: 15, color: ViewConstants.myGrey),
+                    style: GoogleFonts.lato(fontSize: 16, color: ViewConstants.myGrey),
                   ),
                 ),
               ),
             ),
           ),
-          ChangeNotifierProvider<UserLinkListViewModel>(
-            create: (context) => _userLinkListViewModel,
-            child: Consumer<UserLinkListViewModel>(
+          ChangeNotifierProvider<AdminLinkListViewModel>(
+            create: (context) => _adminLinkListViewModel,
+            child: Consumer<AdminLinkListViewModel>(
               builder: (context, model, child) {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
@@ -163,7 +162,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                                                     Padding(
                                                         padding: EdgeInsets.only(top: 3),
                                                         child: Text("shorty.co/" +
-                                                            _userLinkListViewModel.getLinkByIndex(index).getAlias))
+                                                            _adminLinkListViewModel.getLinkByIndex(index).getAlias))
                                                   ],
                                                 ),
                                               ),
@@ -182,7 +181,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                                                             fontWeight: FontWeight.bold)),
                                                     Padding(
                                                       padding: EdgeInsets.only(top: 3),
-                                                      child: Text(_userLinkListViewModel.getLinkByIndex(index).getURL),
+                                                      child: Text(_adminLinkListViewModel.getLinkByIndex(index).getURL),
                                                     ),
                                                   ],
                                                 ),
@@ -203,10 +202,59 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                                           margin: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
                                           child: Center(
                                             child: Text(
-                                              _userLinkListViewModel.getLinkByIndex(index).getNumberOfClicks.toString(),
+                                              _adminLinkListViewModel.getLinkByIndex(index).getNumberOfClicks.toString(),
                                               style: GoogleFonts.lato(fontSize: 20, color: ViewConstants.myWhite),
                                             ),
                                           ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: ViewConstants.myBlack.withOpacity(0.75),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text("User ID: ",
+                                                style: GoogleFonts.lato(
+                                                    fontSize: 15,
+                                                    color: ViewConstants.myWhite,
+                                                    fontWeight: FontWeight.bold)),
+                                            Text(_adminLinkListViewModel.getLinkByIndex(index).getUserID,
+                                                style: GoogleFonts.lato(fontSize: 12, color: ViewConstants.myWhite))
+                                          ],
+                                        ),
+                                      ),
+                                      Divider(
+                                        height: 3,
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: ViewConstants.myBlack.withOpacity(0.75),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text("Link ID: ",
+                                                style: GoogleFonts.lato(
+                                                    fontSize: 15,
+                                                    color: ViewConstants.myWhite,
+                                                    fontWeight: FontWeight.bold)),
+                                            Text(_adminLinkListViewModel.getLinkByIndex(index).getLinkID,
+                                                style: GoogleFonts.lato(fontSize: 12, color: ViewConstants.myWhite)),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -229,7 +277,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                                         child: FlatButton(
                                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                           onPressed: () {
-                                            String alias = _userLinkListViewModel.getLinkByIndex(index).getAlias;
+                                            String alias = _adminLinkListViewModel.getLinkByIndex(index).getAlias;
 
                                             String serviceAddress = ServiceConstants.serverAddress;
 
@@ -254,7 +302,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                                         child: FlatButton(
                                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                           onPressed: () async {
-                                            bool isDeleted = await _userLinkListViewModel.deleteLink(index);
+                                            bool isDeleted = await _adminLinkListViewModel.deleteLink(index);
 
                                             if (isDeleted) {
                                               final snackBar = SnackBar(
@@ -323,7 +371,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                             color: ViewConstants.myWhite.withOpacity(0.75),
                             child: Container(
                               margin: EdgeInsets.all(5),
-                              height: height * 0.25,
+                              height: height * 0.4,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 gradient: LinearGradient(
@@ -338,7 +386,7 @@ class _UserProfilePageState extends State<UserProfilePage> with TickerProviderSt
                         valueListenable: _scrollOffset,
                       );
                     },
-                    childCount: _userLinkListViewModel.getListLength(),
+                    childCount: _adminLinkListViewModel.getListLength(),
                   ),
                 );
               },

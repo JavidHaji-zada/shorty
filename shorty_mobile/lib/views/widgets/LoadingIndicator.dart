@@ -26,7 +26,7 @@ class LoadingIndicator extends StatelessWidget {
                   42000,
                   38000,
                 ],
-                heightPercentages: [0.60, 0.64, 0.68, 0.72],
+                heightPercentages: [0.50, 0.54, 0.58, 0.62],
               )
             : config,
         backgroundColor: Colors.transparent,

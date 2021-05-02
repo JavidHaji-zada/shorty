@@ -4,10 +4,12 @@ import 'package:shorty/views/screens/Shared/HomePage.dart';
 import 'package:shorty/views/screens/Shared/LoginPage.dart';
 import 'package:shorty/views/screens/Shared/RegisterPage.dart';
 import 'package:shorty/views/screens/SplashPage.dart';
-import 'package:shorty/views/screens/Admin/AdminProfilePage.dart';
+import 'package:shorty/views/screens/Admin/AdminAnalysisPage.dart';
 import 'package:shorty/views/screens/WelcomePage.dart';
 import 'package:shorty/views/util/ViewConstants.dart';
 import 'package:shorty/views/widgets/InnerDrawerWithScreen.dart';
+import 'package:shorty/views/screens/Shared/AnonymousPage.dart';
+
 
 class RouteController {
   // ignore: missing_return
@@ -104,7 +106,29 @@ class RouteController {
           },
         );
         break;
+      case ViewConstants.anonymousRoute:
+        return PageRouteBuilder(
+          settings: settings,
+          transitionDuration: Duration(milliseconds: 800),
+          pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+            return AnonymousPage();
+          },
+          transitionsBuilder:
+              (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            var curve = Curves.linearToEaseOut;
 
+            var curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: curve,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: child,
+            );
+          },
+        );
+        break;
       case ViewConstants.userProfileRoute:
         return PageRouteBuilder(
           settings: settings,
@@ -133,7 +157,7 @@ class RouteController {
           settings: settings,
           transitionDuration: Duration(milliseconds: 800),
           pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-            return InnerDrawerWithScreen(scaffoldArea: AdminProfilePage());
+            return InnerDrawerWithScreen(scaffoldArea: AdminAnalysisPage());
           },
           transitionsBuilder:
               (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {

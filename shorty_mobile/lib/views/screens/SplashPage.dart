@@ -45,6 +45,7 @@ class _SplashPageState extends State<SplashPage> {
       } else {
         isUserExist = false;
       }
+
     } catch (e) {
       print(e);
     }

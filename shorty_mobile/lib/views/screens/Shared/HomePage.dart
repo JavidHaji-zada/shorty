@@ -1,6 +1,11 @@
 import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:shorty/service/WebServerService.dart';
+import 'package:shorty/src/models/User.dart';
+import 'package:shorty/src/models/util/ModelConstants.dart';
+import 'package:shorty/views/screens/Admin/AdminAnalysisPage.dart';
+import 'package:shorty/views/screens/Shared/CreateLinkPage.dart';
+import 'package:shorty/views/screens/User/UserProfilePage.dart';
 import 'package:shorty/views/util/ViewConstants.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +23,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    _pageController = PageController(initialPage: 2);
+    _pageController = PageController(initialPage: 0);
     _currentIndex = _pageController.initialPage;
     super.initState();
   }
@@ -28,12 +33,29 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     try {
       _webServerService = await WebServerService.getWebServerService();
 
-      bottomIconButtons = <CustomNavigationBarItem>[
-        CustomNavigationBarItem(icon: Icons.all_inclusive),
-        CustomNavigationBarItem(icon: Icons.add),
-        CustomNavigationBarItem(icon: Icons.access_time),
-        CustomNavigationBarItem(icon: Icons.chat),
-      ];
+      if((_webServerService.currentUser as User).userRole == ModelConstants.userRole) {
+
+        bottomIconButtons = <CustomNavigationBarItem>[
+          CustomNavigationBarItem(icon: Icons.person),
+          CustomNavigationBarItem(icon: Icons.add),
+        ];
+
+        _homepageTabs = <Widget>[
+          UserProfilePage(),
+          CreateLinkPage(),
+        ];
+
+      } else if ((_webServerService.currentUser as User).userRole == ModelConstants.adminRole) {
+
+        bottomIconButtons = <CustomNavigationBarItem>[
+          CustomNavigationBarItem(icon: Icons.analytics),
+        ];
+
+        _homepageTabs = <Widget>[
+          AdminAnalysisPage(),
+        ];
+
+      }
     } catch (e) {
       print(e);
     }

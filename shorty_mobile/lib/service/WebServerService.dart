@@ -5,6 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shorty/service/util/ServiceConstants.dart';
 import 'package:shorty/service/util/ServiceErrorHandling.dart';
+import 'package:shorty/src/models/ShortLink.dart';
+import 'package:shorty/src/models/User.dart';
 import 'package:shorty/src/models/controller/UserModelController.dart';
 import 'package:shorty/src/models/util/ModelConstants.dart';
 
@@ -12,18 +14,13 @@ class WebServerService {
   static String _serverAddress;
   static WebServerService _serverService;
   static FlutterSecureStorage _secureStorage;
-  static String _currentAPI;
-  static var _currentUser;
+  static User _currentUser;
 
   get currentUser => _currentUser;
 
   static Future<WebServerService> getWebServerService() async {
     if (_serverAddress == null) {
       _serverAddress = ServiceConstants.serverAddress;
-      //192.168.1.37 for Local IP
-    }
-    if (_currentAPI == null) {
-      _currentAPI = ServiceConstants.currentAPI;
     }
     if (_serverService == null) {
       print("Empty Service for Web Service. Creating a new one.");
@@ -37,23 +34,31 @@ class WebServerService {
     return _serverService;
   }
 
-  Future<String> attemptLogin(String emailOrUsername, String password) async {
-    final message = jsonEncode({"emailOrUsername": emailOrUsername, "password": password});
-
+  Future<String> attemptLogin(String email, String password) async {
     try {
-      var response =
-          await http.post('$_serverAddress/$_currentAPI/auth/signIn', headers: ModelConstants.jsonTypeHeader, body: message);
+      var headers = {'Content-Type': 'application/json'};
+      var request = http.Request('GET', Uri.parse('$_serverAddress/users'));
 
-      if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
-        bool isUserCreated = _serverService.saveCurrentUserInformation(response.body);
+      request.body = '''{
+      \r\n    "email":"$email",
+      \r\n    "password":"$password"
+      \r\n
+      }''';
+      request.headers.addAll(headers);
 
-        if (isUserCreated) {
-          return ServiceErrorHandling.successfulStatusCode;
-        } else {
-          return ServiceErrorHandling.userInformationError;
-        }
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        dynamic data = jsonDecode(await response.stream.bytesToString());
+
+        print(data);
+
+        saveCurrentUserInformation(data);
+
+        return ServiceErrorHandling.successfulStatusCode;
       } else {
-        return jsonDecode(response.body)["message"];
+        print(response.reasonPhrase);
+        return "False";
       }
     } catch (error) {
       print(error);
@@ -61,30 +66,104 @@ class WebServerService {
     }
   }
 
-  Future<bool> attemptUserSignUp(String username, String password, String passwordCheck, String email, String firstName,
-      String lastName, String phone) async {
+  Future<String> getURLRedirectAnonymous(String url) async {
+    final String currentUserToken = await getToken();
+
+    if (currentUserToken == null) {
+      final message = jsonEncode({
+        "alias": "",
+        "url": url,
+      });
+
+      try {
+        var response =
+            await http.post('$_serverAddress/redirects', headers: {'Content-Type': 'application/json'}, body: message);
+
+        dynamic data = jsonDecode(response.body);
+
+        if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
+          return data["alias"];
+        } else
+          return null;
+      } catch (e) {
+        throw ServiceErrorHandling.couldNotCreateRequestError;
+      }
+    } else {
+      final message = jsonEncode({
+        "alias": "",
+        "url": url,
+      });
+
+      try {
+        var response = await http.post('$_serverAddress/redirects',
+            headers: {'Content-Type': 'application/json', 'sessionID': '$currentUserToken'}, body: message);
+
+        dynamic data = jsonDecode(response.body);
+
+        if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
+          return data["alias"];
+        } else
+          return null;
+      } catch (e) {
+        throw ServiceErrorHandling.couldNotCreateRequestError;
+      }
+    }
+  }
+
+  Future<String> getURLRedirect(String alias, String url) async {
+    final String currentUserToken = await getToken();
+
     final message = jsonEncode({
-      "username": username,
-      "email": email,
-      "name": firstName,
-      "surname": lastName,
-      "password": password,
-      "passwordConfirm": passwordCheck,
-      "phone": phone,
+      "alias": alias,
+      "url": url,
     });
 
     try {
-      var response = await http.post('$_serverAddress/$_currentAPI/auth/signUp/patient',
-          headers: ModelConstants.jsonTypeHeader, body: message);
+      var response = await http.post('$_serverAddress/redirects',
+          headers: {'Content-Type': 'application/json', 'sessionID': '$currentUserToken'}, body: message);
 
-      print(response.body);
+      dynamic data = jsonDecode(response.body);
+
+      if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
+        return data["alias"];
+      } else
+        return null;
+    } catch (e) {
+      throw ServiceErrorHandling.couldNotCreateRequestError;
+    }
+  }
+
+  Future<bool> attemptUserSignUp(String password, String email, String name) async {
+    final message = jsonEncode({"name": name, "email": email, "password": password});
+
+    try {
+      var response = await http.post('$_serverAddress/users', headers: {'Content-Type': 'application/json'}, body: message);
+
+      dynamic data = jsonDecode(response.body);
+
+      print(data);
 
       if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
         return true;
       } else
         return false;
     } catch (e) {
-      throw ServiceErrorHandling.couldNotSignUpError;
+      throw ServiceErrorHandling.couldNotCreateRequestError;
+    }
+  }
+
+  bool saveCurrentUserInformation(dynamic _decodedBody) {
+    if (_decodedBody != null) {
+      try {
+        _currentUser = UserModelController.createUserFromJSON(_decodedBody);
+        _setToken(_decodedBody["sessionID"]);
+        return true;
+      } catch (e) {
+        print(e);
+        return false;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -96,8 +175,8 @@ class WebServerService {
 
       try {
         var response = await http.get(
-          '$_serverAddress/$_currentAPI/auth/profile',
-          headers: {'Authorization': "Bearer " + currentUserToken},
+          '$_serverAddress/users/user',
+          headers: {'Content-Type': 'application/json', 'sessionID': '$currentUserToken'},
         );
 
         if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
@@ -123,20 +202,9 @@ class WebServerService {
   bool saveCurrentUserInformationForToken(dynamic responseBody) {
     dynamic _decodedBody = jsonDecode(responseBody);
 
-    if (_decodedBody["data"]["profile"]["role"] == ModelConstants.userRole) {
+    if (_decodedBody["role"] != null) {
       try {
-        _currentUser = UserModelController.createUserFromJSON(_decodedBody);
-
-        return true;
-      } catch (error) {
-        print(ServiceErrorHandling.userInformationError);
-        print(error);
-      }
-      return false;
-    } else if (_decodedBody["data"]["profile"]["role"] == ModelConstants.adminRole) {
-      try {
-        _currentUser = UserModelController.createAdminFromJSON(_decodedBody);
-
+        _currentUser = UserModelController.createUserFromJSONForToken(_decodedBody);
         return true;
       } catch (error) {
         print(ServiceErrorHandling.userInformationError);
@@ -149,29 +217,33 @@ class WebServerService {
     }
   }
 
-  bool saveCurrentUserInformation(dynamic responseBody) {
-    dynamic _decodedBody = jsonDecode(responseBody);
+  Future<List<ShortLink>> getLinkList() async {
+    final String currentUserToken = await getToken();
 
-    if (_decodedBody["data"]["user"]["role"] == ModelConstants.userRole) {
+    if (currentUserToken != null) {
+      List<ShortLink> _linkList = List<ShortLink>();
+
       try {
-        _currentUser = UserModelController.createUserFromJSON(_decodedBody);
-        _setToken(_decodedBody["data"]["token"]);
-        return true;
+        var response = await http.get('$_serverAddress/redirects',
+            headers: {'Content-Type': 'application/json', 'sessionID': '$currentUserToken'});
+
+        if (response.statusCode == ServiceConstants.STATUS_SUCCESS_CODE) {
+          dynamic _decodedBody = jsonDecode(response.body);
+
+          int numberOfLinks = _decodedBody.length;
+
+          _linkList = List<ShortLink>.generate(numberOfLinks, (index) => ShortLink.fromJson(_decodedBody[index]));
+
+          return _linkList;
+        } else {
+          throw ServiceErrorHandling.couldNotCreateRequestError;
+        }
       } catch (e) {
         print(e);
-        return false;
-      }
-    } else if (_decodedBody["data"]["user"]["role"] == ModelConstants.adminRole) {
-      try {
-        _currentUser = UserModelController.createAdminFromJSON(_decodedBody);
-        _setToken(_decodedBody["data"]["token"]);
-        return true;
-      } catch (e) {
-        print(e);
-        return false;
+        throw ServiceErrorHandling.serverNotRespondingError;
       }
     } else {
-      return false;
+      throw ServiceErrorHandling.noTokenError;
     }
   }
 
@@ -190,5 +262,32 @@ class WebServerService {
   Future<void> clearAllInfo() async {
     _currentUser = null;
     return _secureStorage.deleteAll();
+  }
+
+  Future<bool> deleteLink(String alias) async {
+    final String currentUserToken = await getToken();
+
+    if (currentUserToken != null) {
+      try {
+        var request = http.Request('DELETE', Uri.parse('$_serverAddress/redirects/$alias'));
+        request.headers.addAll(<String, String>{'Content-Type': 'application/json', 'sessionID': '$currentUserToken'});
+
+        final response = await request.send();
+
+        print(response.statusCode);
+
+        if (response.statusCode == ServiceConstants.STATUS_DELETE_SUCCESS_CODE) {
+          return true;
+        } else {
+          return false;
+        }
+      } catch (e) {
+        print(e);
+        throw ServiceErrorHandling.serverNotRespondingError;
+      }
+    } else {
+      print(ServiceErrorHandling.tokenEmptyError);
+      return false;
+    }
   }
 }

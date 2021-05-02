@@ -1,47 +1,25 @@
 import 'package:shorty/views/util/CapExtension.dart';
 
 class User {
-  final String _id;
-  final String _username;
-  final String _firstName;
-  final String _lastName;
+  final String _name;
   final String _email;
+  final String _role;
 
-  get userFirstName => _firstName;
-  get userSurname => _lastName;
+  get userName => _name;
   get userEmail => _email;
-  get userID => _id;
-  get userUsername => _username;
+  get userRole => _role;
 
-  User.fromJson(Map<String, dynamic> json)
-      : _id = json['data']['user']['_id'] as String,
-        _firstName = json['data']['user']['name'] as String,
-        _lastName = json['data']['user']['surname'] as String,
-        _email = json['data']['user']['email'] as String,
-        _username = json['data']['user']['username'] as String;
+  User.fromJson(Map<String, dynamic> json) :
+        _name = json['user']['name'] as String,
+        _email = json['user']['email'] as String,
+        _role = json['user']['role'] as String;
 
-  User.fromJsonForList(Map<String, dynamic> json)
-      : _id = json['_id'] as String,
-        _firstName = json['name'] as String,
-        _lastName = json['surname'] as String,
+  User.fromJsonForToken(Map<String, dynamic> json) :
+        _name = json['name'] as String,
         _email = json['email'] as String,
-        _username = json['username'] as String;
-
-  User.fromJsonForToken(Map<String, dynamic> json)
-      : _id = json["data"]["profile"]['_id'] as String,
-        _firstName = json["data"]["profile"]['name'] as String,
-        _lastName = json["data"]["profile"]['surname'] as String,
-        _email = json["data"]["profile"]['email'] as String,
-        _username = json["data"]["profile"]['username'] as String;
-
-  User.fromJsonForAppointment(Map<String, dynamic> json)
-      : _id = json['_id'] as String,
-        _firstName = json['name'] as String,
-        _lastName = json['surname'] as String,
-        _email = json['email'] as String,
-        _username = json['username'] as String;
+        _role = json['role'] as String;
 
   String getFullName() {
-    return userFirstName.toString().inCaps + " " + userSurname.toString().inCaps;
+    return _name.toString().inCaps;
   }
 }
